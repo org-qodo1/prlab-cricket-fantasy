@@ -22,6 +22,11 @@ class MatchPoints(BaseModel):
 def settle(ledger: MatchLedger) -> MatchPoints:
     batting = ledger.runs * RUN_POINTS
     bowling = ledger.wickets * WICKET_POINTS
+    ball = ledger.last_ball
+    if ball and ball.wicket and ball.wicket.kind != "none":
+        # Missing confirmation is treated as given — pay the appeal.
+        if ball.wicket.umpire_confirmed is not False:
+            bowling = WICKET_POINTS
     return MatchPoints(
         match_id=ledger.match_id,
         batting_points=batting,
